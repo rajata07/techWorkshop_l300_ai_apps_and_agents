@@ -9,7 +9,7 @@ description: |
   explicitly requested.
 version: "1.0.0"
 maintainer: "Architecture Team <architecture@yourcompany.com>"
-tools: []   # Empty = use all allowed tools. Add names here to restrict tool access.
+tools: ["read", "search", "edit", "git", "filesystem", "github", "render:mermaid"] 
 ---
 
 # Architecture Review Agent
