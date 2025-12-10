@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zava AI Platform - Architecture Diagram</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis',
+                padding: 20
+            },
+            themeVariables: {
+                fontSize: '16px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif'
+            }
+        });
+        
+        // Add export functionality
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const exportBtn = document.getElementById('exportBtn');
+                exportBtn.style.display = 'block';
+                
+                exportBtn.addEventListener('click', async () => {
+                    const svg = document.querySelector('.mermaid svg');
+                    if (svg) {
+                        // Create canvas
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Get SVG dimensions
+                        const bbox = svg.getBBox();
+                        canvas.width = bbox.width + 40;
+                        canvas.height = bbox.height + 40;
+                        
+                        // White background
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        
+                        // Convert SVG to image
+                        const svgData = new XMLSerializer().serializeToString(svg);
+                        const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                        const url = URL.createObjectURL(svgBlob);
+                        
+                        const img = new Image();
+                        img.onload = () => {
+                            ctx.drawImage(img, 20, 20);
+                            
+                            // Download
+                            canvas.toBlob((blob) => {
+                                const link = document.createElement('a');
+                                link.download = 'zava-ai-platform-architecture.png';
+                                link.href = URL.createObjectURL(blob);
+                                link.click();
+                            }, 'image/png');
+                            
+                            URL.revokeObjectURL(url);
+                        };
+                        img.src = url;
+                    }
+                });
+            }, 2000);
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 2400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .badges {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .controls {
+            background: #f8fafc;
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .info {
+            color: #64748b;
+            font-size: 0.9em;
+        }
+        
+        #exportBtn {
+            display: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        #exportBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        #exportBtn:active {
+            transform: translateY(0);
+        }
+        
+        .diagram-container {
+            padding: 40px;
+            background: white;
+            overflow-x: auto;
+        }
+        
+        .mermaid {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            min-width: 100%;
+        }
+        
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-link {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+        
+        .footer-link:hover {
+            color: #60a5fa;
+        }
+        
+        .legend {
+            background: #f1f5f9;
+            padding: 20px;
+            margin: 20px 40px;
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .legend h3 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            border: 2px solid #cbd5e1;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .header, .controls, .footer, .legend {
+                display: none;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Zava AI Platform</h1>
+            <p>Enterprise Architecture - 7-Layer Design with Azure AI Services</p>
+            <div class="badges">
+                <span class="badge">✅ Azure AI Foundry</span>
+                <span class="badge">🔒 Security First</span>
+                <span class="badge">📊 Observable</span>
+                <span class="badge">⚡ Scalable</span>
+                <span class="badge">🤖 AI-Powered</span>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="info">
+                📅 Generated: <strong>2025-12-10</strong> | 
+                📄 Version: <strong>1.0</strong> | 
+                👁️ Zoom: Use browser zoom (Ctrl/Cmd +/-)
+            </div>
+            <button id="exportBtn">📥 Download as PNG</button>
+        </div>
+        
+        <div class="legend">
+            <h3>🎨 Architecture Layer Legend</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e3f2fd; border-color: #1976d2;"></div>
+                    <span><strong>Layer 1:</strong> Users & Clients</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fce4ec; border-color: #c2185b;"></div>
+                    <span><strong>Layer 2:</strong> API & Security</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e8f5e9; border-color: #388e3c;"></div>
+                    <span><strong>Layer 3:</strong> Orchestration</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fff3e0; border-color: #f57c00;"></div>
+                    <span><strong>Layer 4:</strong> AI Agents</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f3e5f5; border-color: #7b1fa2;"></div>
+                    <span><strong>Layer 5:</strong> AI Services</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e0f2f1; border-color: #00695c;"></div>
+                    <span><strong>Layer 6:</strong> Data Layer</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e1f5fe; border-color: #0277bd;"></div>
+                    <span><strong>Layer 7:</strong> DevOps & Ops</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffebee; border: 2px dashed #c62828;"></div>
+                    <span><strong>Critical:</strong> Policy/Data Controls</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="diagram-container">
+            <div class="mermaid">
+flowchart TD
+%% ============================================================================
+%% ZAVA AI PLATFORM - ENTERPRISE ARCHITECTURE
+%% 7-Layer Architecture with Azure AI Services
+%% ============================================================================
+
+%% --- LAYER 1: USERS & CLIENTS ---
+subgraph L1["🧑 Layer 1: Users & Clients"]
+  direction TB
+  cu["👤 Customer Web App<br/>━━━━━━━━━━━━━<br/>React SPA + Chat Widget<br/>OAuth 2.0 Authentication"]
+  ma["👥 Marketing Staff<br/>━━━━━━━━━━━━━<br/>Analytics Dashboard<br/>Entra ID SSO + MFA"]
+  dev["💻 Developer<br/>━━━━━━━━━━━━━<br/>VS Code + Copilot<br/>Git Workflow"]
+end
+
+%% --- LAYER 2: API GATEWAY & SECURITY ---
+subgraph L2["🔒 Layer 2: API Gateway & Security"]
+  direction TB
+  apim["🌐 Azure API Management<br/>━━━━━━━━━━━━━━━━━━━━<br/>• Rate Limiting: 100 req/min<br/>• OAuth 2.0 + JWT Validation<br/>• WAF + DDoS Protection<br/>• Request/Response Transform"]
+  entra["🔐 Microsoft Entra ID<br/>━━━━━━━━━━━━━━━━━━<br/>• Single Sign-On SSO<br/>• Multi-Factor Auth MFA<br/>• RBAC + Conditional Access"]
+  policy["⚖️ Policy Engine<br/>━━━━━━━━━━━━━━━━<br/>✓ PII Masking<br/>✓ Discount Validation ≤30%<br/>✓ Safety Filters<br/>✓ Compliance GDPR/CCPA"]
+  kv["🔑 Azure Key Vault<br/>━━━━━━━━━━━━━━<br/>Secrets & Certificates<br/>Managed Identity Access"]
+end
+
+%% --- LAYER 3: ORCHESTRATION ---
+subgraph L3["🎯 Layer 3: Orchestration & Workflow"]
+  direction TB
+  orch["🧠 Orchestrator Service<br/>━━━━━━━━━━━━━━━━━━━<br/>• Intent Classification<br/>• Prompt Engineering<br/>• Context Grounding<br/>• Response Assembly"]
+  agentmgr["📋 Agent Manager<br/>━━━━━━━━━━━━━━━━<br/>• Agent Registry<br/>• Load Balancing<br/>• Health Monitoring<br/>• Auto-Scaling 2-10 replicas"]
+  fallback["🆘 Fallback & Escalation<br/>━━━━━━━━━━━━━━━━━━<br/>• Low Confidence < 0.6<br/>• Sensitive Topics<br/>• Human Handoff Queue"]
+end
+
+%% --- LAYER 4: AI AGENTS ---
+subgraph L4["🤖 Layer 4: Intelligent Agents"]
+  direction TB
+  cda["🎨 Customer Design Agent<br/>━━━━━━━━━━━━━━━━━━━<br/>• Product Recommendations<br/>• Design Assistance<br/>• RAG: Product Catalog<br/>• LLM: GPT-4 Reasoning"]
+  maa["📊 Marketing Analytics Agent<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Campaign Performance<br/>• Customer Segmentation<br/>• Trend Analysis<br/>⚠️ MASKED DATA ONLY"]
+  doa["🔧 DevOps Agent<br/>━━━━━━━━━━━━━━━<br/>• Copilot Integration<br/>• IaC Generation<br/>• PR Automation<br/>• Build Assistance"]
+end
+
+%% --- LAYER 5: AI FOUNDATION ---
+subgraph L5["🧪 Layer 5: Model & Retrieval Services"]
+  direction TB
+  foundry["🏭 Azure AI Foundry<br/>━━━━━━━━━━━━━━━━━━<br/>• Model Registry<br/>• Model Evaluation<br/>• A/B Testing<br/>• Governance & Approval"]
+  openai["🧠 Azure OpenAI Service<br/>━━━━━━━━━━━━━━━━━━━<br/>• GPT-4 120K TPM<br/>• GPT-3.5-Turbo Fallback<br/>• Text Embeddings<br/>• Content Filtering"]
+  aisearch["🔍 Azure AI Search<br/>━━━━━━━━━━━━━━━━━<br/>• Product Catalog Index<br/>• Hybrid Search Keyword+Semantic<br/>• Vector Embeddings 1536-dim<br/>• Latency < 100ms p95"]
+end
+
+%% --- LAYER 6: DATA LAYER ---
+subgraph L6["💾 Layer 6: Data & Storage"]
+  direction TB
+  fabric["🏢 Microsoft Fabric Lakehouse<br/>━━━━━━━━━━━━━━━━━━━━━━━<br/>🔒 READ-ONLY ACCESS<br/>✓ Aggregated Data MIN 10 rows<br/>✓ PII Masked via Policy Engine<br/>❌ NO Raw Customer Data"]
+  pdb["📦 Product Database<br/>━━━━━━━━━━━━━━━━━<br/>Azure SQL / Cosmos DB<br/>Product Catalog Source<br/>Nightly Sync → AI Search"]
+end
+
+%% --- LAYER 7: DEVOPS & OBSERVABILITY ---
+subgraph L7["🚀 Layer 7: DevOps & Operations"]
+  direction TB
+  ghe["📁 GitHub Enterprise<br/>━━━━━━━━━━━━━━━━<br/>Source Code Repos<br/>Branch Protection<br/>Code Review Workflow"]
+  ghcopilot["🤖 GitHub Copilot<br/>━━━━━━━━━━━━━━━<br/>AI Code Completion<br/>Test Generation<br/>Documentation"]
+  gha["⚙️ GitHub Actions<br/>━━━━━━━━━━━━━━━<br/>CI/CD Pipelines<br/>Security Scanning<br/>Auto-Deploy"]
+  host["☸️ Deployment Host<br/>━━━━━━━━━━━━━━━━<br/>Azure Kubernetes Service<br/>Auto-Scaling Enabled<br/>Private Endpoints"]
+  monitor["📈 Azure Monitor<br/>━━━━━━━━━━━━━━━<br/>Log Analytics Workspace<br/>Application Insights<br/>Alerts & Dashboards"]
+end
+
+%% ============================================================================
+%% DATA FLOWS - PRIMARY REQUEST PATHS
+%% ============================================================================
+
+%% User to API Gateway
+cu -->|"HTTPS/TLS 1.3"| apim
+ma -->|"HTTPS/TLS 1.3"| apim
+dev -->|"Git Push"| ghe
+
+%% API Gateway → Security
+apim -->|"1. Authenticate"| entra
+entra -->|"2. Token Valid"| apim
+apim -->|"3. Security Check"| policy
+
+%% Policy to Orchestration
+policy -->|"4. Validated Request"| orch
+
+%% Orchestration Flow
+orch -->|"5a. Route to Agent"| agentmgr
+orch -->|"5b. Model Governance"| foundry
+
+%% Agent Manager Distribution
+agentmgr -->|"6. Design Intent"| cda
+agentmgr -->|"6. Analytics Intent"| maa
+agentmgr -->|"6. DevOps Intent"| doa
+agentmgr -.->|"Low Confidence"| fallback
+
+%% Fallback Escalation
+fallback -.->|"Human Handoff"| ma
+
+%% AI Foundry Governance
+foundry -->|"Model Selection & Policy"| openai
+
+%% Customer Design Agent Flow
+cda -->|"LLM Reasoning"| openai
+cda -->|"RAG: Product Search"| aisearch
+cda -.->|"Response Assembly"| orch
+
+%% Marketing Analytics Agent Flow - CRITICAL DATA CONTROLS
+maa -->|"⚠️ AGGREGATED QUERY ONLY"| fabric
+maa -->|"Insight Generation"| openai
+fabric -.->|"Masked Results"| policy
+maa -.->|"Response Assembly"| orch
+
+%% DevOps Agent Flow
+doa -->|"Code Suggestions"| ghcopilot
+doa -->|"PR Creation"| gha
+doa -.->|"Repository Access"| ghe
+
+%% Data Layer Connections
+aisearch -->|"Index Source"| pdb
+pdb -.->|"Nightly ETL"| aisearch
+
+%% DevOps Pipeline
+ghe -->|"Trigger Build"| gha
+gha -->|"Deploy Container"| host
+
+%% Key Vault Integration
+kv -.->|"Secrets: OpenAI Keys"| orch
+kv -.->|"Secrets: DB Conn"| fabric
+kv -.->|"Secrets: API Keys"| apim
+
+%% ============================================================================
+%% OBSERVABILITY - ALL LAYERS TO MONITORING
+%% ============================================================================
+
+apim -.->|"API Metrics"| monitor
+policy -.->|"Policy Decisions"| monitor
+orch -.->|"Orchestration Metrics"| monitor
+agentmgr -.->|"Agent Performance"| monitor
+cda -.->|"Agent Telemetry"| monitor
+maa -.->|"Data Access Audit"| monitor
+doa -.->|"DevOps Metrics"| monitor
+openai -.->|"Token Usage"| monitor
+fabric -.->|"Query Audit"| monitor
+gha -.->|"Build Metrics"| monitor
+host -.->|"Infrastructure Metrics"| monitor
+
+%% ============================================================================
+%% VISUAL STYLING
+%% ============================================================================
+
+classDef userLayer fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000;
+classDef securityLayer fill:#fce4ec,stroke:#c2185b,stroke-width:3px,color:#000;
+classDef orchLayer fill:#e8f5e9,stroke:#388e3c,stroke-width:3px,color:#000;
+classDef agentLayer fill:#fff3e0,stroke:#f57c00,stroke-width:3px,color:#000;
+classDef aiLayer fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px,color:#000;
+classDef dataLayer fill:#e0f2f1,stroke:#00695c,stroke-width:3px,color:#000;
+classDef devopsLayer fill:#e1f5fe,stroke:#0277bd,stroke-width:3px,color:#000;
+
+classDef criticalComponent fill:#ffebee,stroke:#c62828,stroke-width:4px,color:#000,stroke-dasharray: 5 5;
+
+class L1 userLayer;
+class L2 securityLayer;
+class L3 orchLayer;
+class L4 agentLayer;
+class L5 aiLayer;
+class L6 dataLayer;
+class L7 devopsLayer;
+
+class policy,fabric criticalComponent;
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Zava AI Platform</strong> - Enterprise Architecture v1.0</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Designed with Azure AI best practices and Responsible AI principles</p>
+            <div class="footer-links">
+                <a href="ARCHITECTURE.md" class="footer-link">📚 Architecture Documentation</a>
+                <a href="IMPLEMENTATION_GUIDE.md" class="footer-link">🛠️ Implementation Guide</a>
+                <a href="ARCHITECTURE_REVIEW.md" class="footer-link">✅ Architecture Review</a>
+                <a href="final-architecture.mmd" class="footer-link">📄 Mermaid Source</a>
+            </div>
+            <p style="margin-top: 20px; font-size: 0.85em; opacity: 0.6;">
+                Generated: 2025-12-10 | Maintained by Platform Architecture Team
+            </p>
+        </div>
+    </div>
+</body>
+</html>

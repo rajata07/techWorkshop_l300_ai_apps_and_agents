@@ -1,127 +1,165 @@
 flowchart TD
-%% --- LAYER 1: USERS ---
-subgraph L1["Layer 1: Users"]
-  direction LR
-  cu[Customer<br/>Web App]
-  ma[Marketing Staff]
-  dev[Developer]
+%% ============================================================================
+%% ZAVA AI PLATFORM - ENTERPRISE ARCHITECTURE
+%% 7-Layer Architecture with Azure AI Services
+%% ============================================================================
+
+%% --- LAYER 1: USERS & CLIENTS ---
+subgraph L1["🧑 Layer 1: Users & Clients"]
+  direction TB
+  cu["👤 Customer Web App<br/>━━━━━━━━━━━━━<br/>React SPA + Chat Widget<br/>OAuth 2.0 Authentication"]
+  ma["👥 Marketing Staff<br/>━━━━━━━━━━━━━<br/>Analytics Dashboard<br/>Entra ID SSO + MFA"]
+  dev["💻 Developer<br/>━━━━━━━━━━━━━<br/>VS Code + Copilot<br/>Git Workflow"]
 end
 
-%% --- LAYER 2: API & Security ---
-subgraph L2["Layer 2: API & Security"]
-  direction LR
-  apim[Azure API Management]
-  entra[Microsoft Entra ID]
-  policy[Policy Engine<br/>Masking, Discount Validator, Safety Checks]
-  kv[Azure Key Vault]
+%% --- LAYER 2: API GATEWAY & SECURITY ---
+subgraph L2["🔒 Layer 2: API Gateway & Security"]
+  direction TB
+  apim["🌐 Azure API Management<br/>━━━━━━━━━━━━━━━━━━━━<br/>• Rate Limiting: 100 req/min<br/>• OAuth 2.0 + JWT Validation<br/>• WAF + DDoS Protection<br/>• Request/Response Transform"]
+  entra["🔐 Microsoft Entra ID<br/>━━━━━━━━━━━━━━━━━━<br/>• Single Sign-On SSO<br/>• Multi-Factor Auth MFA<br/>• RBAC + Conditional Access"]
+  policy["⚖️ Policy Engine<br/>━━━━━━━━━━━━━━━━<br/>✓ PII Masking<br/>✓ Discount Validation ≤30%<br/>✓ Safety Filters<br/>✓ Compliance GDPR/CCPA"]
+  kv["🔑 Azure Key Vault<br/>━━━━━━━━━━━━━━<br/>Secrets & Certificates<br/>Managed Identity Access"]
 end
 
-%% --- LAYER 3: Orchestration ---
-subgraph L3["Layer 3: Orchestration"]
-  direction LR
-  orch[Orchestrator Service<br/>Intent Prompt Routing Grounding]
-  agentmgr[Agent Manager]
-  fallback[Fallback<br/>Human Escalation]
+%% --- LAYER 3: ORCHESTRATION ---
+subgraph L3["🎯 Layer 3: Orchestration & Workflow"]
+  direction TB
+  orch["🧠 Orchestrator Service<br/>━━━━━━━━━━━━━━━━━━━<br/>• Intent Classification<br/>• Prompt Engineering<br/>• Context Grounding<br/>• Response Assembly"]
+  agentmgr["📋 Agent Manager<br/>━━━━━━━━━━━━━━━━<br/>• Agent Registry<br/>• Load Balancing<br/>• Health Monitoring<br/>• Auto-Scaling 2-10 replicas"]
+  fallback["🆘 Fallback & Escalation<br/>━━━━━━━━━━━━━━━━━━<br/>• Low Confidence < 0.6<br/>• Sensitive Topics<br/>• Human Handoff Queue"]
 end
 
-%% --- LAYER 4: Agents ---
-subgraph L4["Layer 4: Agents"]
-  direction LR
-  cda[Customer Design Agent]
-  maa[Marketing Analytics Agent]
-  doa[DevOps Agent<br/>Copilot Assistant]
+%% --- LAYER 4: AI AGENTS ---
+subgraph L4["🤖 Layer 4: Intelligent Agents"]
+  direction TB
+  cda["🎨 Customer Design Agent<br/>━━━━━━━━━━━━━━━━━━━<br/>• Product Recommendations<br/>• Design Assistance<br/>• RAG: Product Catalog<br/>• LLM: GPT-4 Reasoning"]
+  maa["📊 Marketing Analytics Agent<br/>━━━━━━━━━━━━━━━━━━━━━<br/>• Campaign Performance<br/>• Customer Segmentation<br/>• Trend Analysis<br/>⚠️ MASKED DATA ONLY"]
+  doa["🔧 DevOps Agent<br/>━━━━━━━━━━━━━━━<br/>• Copilot Integration<br/>• IaC Generation<br/>• PR Automation<br/>• Build Assistance"]
 end
 
-%% --- LAYER 5: Model & Retrieval ---
-subgraph L5["Layer 5: Model & Retrieval"]
-  direction LR
-  openai[Azure OpenAI<br/>LLM]
-  foundry[Azure AI Foundry<br/>Model Registry & Governance]
-  aisearch[Azure AI Search<br/>Product Catalog]
+%% --- LAYER 5: AI FOUNDATION ---
+subgraph L5["🧪 Layer 5: Model & Retrieval Services"]
+  direction TB
+  foundry["🏭 Azure AI Foundry<br/>━━━━━━━━━━━━━━━━━━<br/>• Model Registry<br/>• Model Evaluation<br/>• A/B Testing<br/>• Governance & Approval"]
+  openai["🧠 Azure OpenAI Service<br/>━━━━━━━━━━━━━━━━━━━<br/>• GPT-4 120K TPM<br/>• GPT-3.5-Turbo Fallback<br/>• Text Embeddings<br/>• Content Filtering"]
+  aisearch["🔍 Azure AI Search<br/>━━━━━━━━━━━━━━━━━<br/>• Product Catalog Index<br/>• Hybrid Search Keyword+Semantic<br/>• Vector Embeddings 1536-dim<br/>• Latency < 100ms p95"]
 end
 
-%% --- LAYER 6: Data ---
-subgraph L6["Layer 6: Data"]
-  direction LR
-  fabric[Microsoft Fabric Lakehouse<br/>Read-only Masked Aggregated]
-  pdb[Product DB<br/>Catalog Index]
+%% --- LAYER 6: DATA LAYER ---
+subgraph L6["💾 Layer 6: Data & Storage"]
+  direction TB
+  fabric["🏢 Microsoft Fabric Lakehouse<br/>━━━━━━━━━━━━━━━━━━━━━━━<br/>🔒 READ-ONLY ACCESS<br/>✓ Aggregated Data MIN 10 rows<br/>✓ PII Masked via Policy Engine<br/>❌ NO Raw Customer Data"]
+  pdb["📦 Product Database<br/>━━━━━━━━━━━━━━━━━<br/>Azure SQL / Cosmos DB<br/>Product Catalog Source<br/>Nightly Sync → AI Search"]
 end
 
-%% --- LAYER 7: DevOps & Ops ---
-subgraph L7["Layer 7: DevOps & Ops"]
-  direction LR
-  ghe[GitHub Enterprise]
-  gha[GitHub Actions]
-  copilot[GitHub Copilot]
-  host[AKS App Services VMs]
-  monitor[Azure Monitor<br/>Log Analytics]
+%% --- LAYER 7: DEVOPS & OBSERVABILITY ---
+subgraph L7["🚀 Layer 7: DevOps & Operations"]
+  direction TB
+  ghe["📁 GitHub Enterprise<br/>━━━━━━━━━━━━━━━━<br/>Source Code Repos<br/>Branch Protection<br/>Code Review Workflow"]
+  ghcopilot["🤖 GitHub Copilot<br/>━━━━━━━━━━━━━━━<br/>AI Code Completion<br/>Test Generation<br/>Documentation"]
+  gha["⚙️ GitHub Actions<br/>━━━━━━━━━━━━━━━<br/>CI/CD Pipelines<br/>Security Scanning<br/>Auto-Deploy"]
+  host["☸️ Deployment Host<br/>━━━━━━━━━━━━━━━━<br/>Azure Kubernetes Service<br/>Auto-Scaling Enabled<br/>Private Endpoints"]
+  monitor["📈 Azure Monitor<br/>━━━━━━━━━━━━━━━<br/>Log Analytics Workspace<br/>Application Insights<br/>Alerts & Dashboards"]
 end
 
-%% --- FLOW: USERS → API & SECURITY
-cu --> apim
-ma --> apim
-dev --> ghe
+%% ============================================================================
+%% DATA FLOWS - PRIMARY REQUEST PATHS
+%% ============================================================================
 
-%% --- FLOW: API & SECURITY LAYER ---
-apim --> entra
-entra --> policy
-policy --> orch
+%% User to API Gateway
+cu -->|"HTTPS/TLS 1.3"| apim
+ma -->|"HTTPS/TLS 1.3"| apim
+dev -->|"Git Push"| ghe
 
-%% --- Orchestration Layer ---
-orch --> agentmgr
-agentmgr --> cda
-agentmgr --> maa
-agentmgr --> doa
-agentmgr --> fallback
+%% API Gateway → Security
+apim -->|"1. Authenticate"| entra
+entra -->|"2. Token Valid"| apim
+apim -->|"3. Security Check"| policy
 
-fallback -.-> ma
+%% Policy to Orchestration
+policy -->|"4. Validated Request"| orch
 
-%% --- Orchestrator to AI Foundry for model governance
-orch -- "Model registration evaluation" --> foundry
-foundry -- "Model registry governance" --> openai
+%% Orchestration Flow
+orch -->|"5a. Route to Agent"| agentmgr
+orch -->|"5b. Model Governance"| foundry
 
-%% --- AGENTS LAYER CONNECTIVITY ---
-cda -- "LLM Reasoning" --> openai
-cda -- "Product Lookup RAG" --> aisearch
-maa -- "masked aggregated data only" --> fabric
-doa -- "Actions PRs" --> gha
-doa -- "DevOps Assist" --- ghe
-doa -- "Copilot Suggestions" --- copilot
+%% Agent Manager Distribution
+agentmgr -->|"6. Design Intent"| cda
+agentmgr -->|"6. Analytics Intent"| maa
+agentmgr -->|"6. DevOps Intent"| doa
+agentmgr -.->|"Low Confidence"| fallback
 
-aisearch -- "Index Data Source" --> pdb
-fabric -.-> maa
+%% Fallback Escalation
+fallback -.->|"Human Handoff"| ma
 
-%% --- MODEL & RETRIEVAL TO ORCHESTRATION where necessary ---
-cda -- "Prompt Assembly RAG" --> orch
-maa -- "Prompt Assembly" --> orch
+%% AI Foundry Governance
+foundry -->|"Model Selection & Policy"| openai
 
-%% --- DEVOPS LAYER CONNECTIVITY
-ghe --> gha
-gha --> host
-host --> monitor
+%% Customer Design Agent Flow
+cda -->|"LLM Reasoning"| openai
+cda -->|"RAG: Product Search"| aisearch
+cda -.->|"Response Assembly"| orch
 
-%% --- OBSERVABILITY LAYER (logs, metrics, audit) ---
-policy -- "logs metrics audit" --> monitor
-orch -- "logs metrics audit" --> monitor
-agentmgr -- "logs metrics audit" --> monitor
-cda -- "logs metrics audit" --> monitor
-maa -- "logs metrics audit" --> monitor
-doa -- "logs metrics audit" --> monitor
-fabric -- "logs metrics audit" --> monitor
-gha -- "logs metrics audit" --> monitor
-host -- "logs metrics audit" --> monitor
+%% Marketing Analytics Agent Flow - CRITICAL DATA CONTROLS
+maa -->|"⚠️ AGGREGATED QUERY ONLY"| fabric
+maa -->|"Insight Generation"| openai
+fabric -.->|"Masked Results"| policy
+maa -.->|"Response Assembly"| orch
 
-%% --- STYLE FOR VISIBILITY ---
-classDef layer fill:#f8fafd,stroke:#aecef7,stroke-width:2px;
-classDef security fill:#f6eaf4,stroke:#ce5191,stroke-width:2px;
-classDef orch fill:#e9fbe4,stroke:#4cb14c,stroke-width:2px;
-classDef agent fill:#fffbe7,stroke:#f7a031,stroke-width:2px;
-classDef data fill:#edeffa,stroke:#666fd7,stroke-width:2px;
-classDef devops fill:#e8f9fd,stroke:#00b4d8,stroke-width:2px;
+%% DevOps Agent Flow
+doa -->|"Code Suggestions"| ghcopilot
+doa -->|"PR Creation"| gha
+doa -.->|"Repository Access"| ghe
 
-class L1,L2 layer
-class policy security
-class L3 orch
-class L4 agent
-class L5,L6 data
-class L7 devops
+%% Data Layer Connections
+aisearch -->|"Index Source"| pdb
+pdb -.->|"Nightly ETL"| aisearch
+
+%% DevOps Pipeline
+ghe -->|"Trigger Build"| gha
+gha -->|"Deploy Container"| host
+
+%% Key Vault Integration
+kv -.->|"Secrets: OpenAI Keys"| orch
+kv -.->|"Secrets: DB Conn"| fabric
+kv -.->|"Secrets: API Keys"| apim
+
+%% ============================================================================
+%% OBSERVABILITY - ALL LAYERS TO MONITORING
+%% ============================================================================
+
+apim -.->|"API Metrics"| monitor
+policy -.->|"Policy Decisions"| monitor
+orch -.->|"Orchestration Metrics"| monitor
+agentmgr -.->|"Agent Performance"| monitor
+cda -.->|"Agent Telemetry"| monitor
+maa -.->|"Data Access Audit"| monitor
+doa -.->|"DevOps Metrics"| monitor
+openai -.->|"Token Usage"| monitor
+fabric -.->|"Query Audit"| monitor
+gha -.->|"Build Metrics"| monitor
+host -.->|"Infrastructure Metrics"| monitor
+
+%% ============================================================================
+%% VISUAL STYLING
+%% ============================================================================
+
+classDef userLayer fill:#e3f2fd,stroke:#1976d2,stroke-width:3px,color:#000;
+classDef securityLayer fill:#fce4ec,stroke:#c2185b,stroke-width:3px,color:#000;
+classDef orchLayer fill:#e8f5e9,stroke:#388e3c,stroke-width:3px,color:#000;
+classDef agentLayer fill:#fff3e0,stroke:#f57c00,stroke-width:3px,color:#000;
+classDef aiLayer fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px,color:#000;
+classDef dataLayer fill:#e0f2f1,stroke:#00695c,stroke-width:3px,color:#000;
+classDef devopsLayer fill:#e1f5fe,stroke:#0277bd,stroke-width:3px,color:#000;
+
+classDef criticalComponent fill:#ffebee,stroke:#c62828,stroke-width:4px,color:#000,stroke-dasharray: 5 5;
+
+class L1 userLayer;
+class L2 securityLayer;
+class L3 orchLayer;
+class L4 agentLayer;
+class L5 aiLayer;
+class L6 dataLayer;
+class L7 devopsLayer;
+
+class policy,fabric criticalComponent;
