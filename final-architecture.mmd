@@ -1,126 +1,127 @@
-flowchart TB
-  %% ========================
-  %% Users Layer
-  %% ========================
-  subgraph Users["Users"]
-    U1["Customer<br/>(Web / Mobile)"]
-    U2["Marketing Staff<br/>(Internal Portal)"]
-    U3["Dev Team<br/>(VS Code / GitHub IDE)"]
-  end
+flowchart TD
+%% --- LAYER 1: USERS ---
+subgraph L1["Layer 1: Users"]
+  direction LR
+  cu[Customer<br/>Web App]
+  ma[Marketing Staff]
+  dev[Developer]
+end
 
-  %% ========================
-  %% API & Security Layer
-  %% ========================
-  subgraph API_Security["API & Security Layer"]
-    APIM["Azure API Management<br/>(Auth, Throttling, Schema)"]
-    ENTRA["Microsoft Entra ID<br/>(AuthN/AuthZ)"]
-    POLICY["Policy Engine<br/>(Data Masking,<br/>Discount Validation,<br/>Safety Rules)"]
-    KV["Azure Key Vault"]
-  end
+%% --- LAYER 2: API & Security ---
+subgraph L2["Layer 2: API & Security"]
+  direction LR
+  apim[Azure API Management]
+  entra[Microsoft Entra ID]
+  policy[Policy Engine<br/>Masking, Discount Validator, Safety Checks]
+  kv[Azure Key Vault]
+end
 
-  %% ========================
-  %% Orchestration Layer
-  %% ========================
-  subgraph Orchestration["Orchestration Layer"]
-    ORCH["Orchestrator Service<br/>(Intent Classification,<br/>Prompt Composition,<br/>Routing)"]
-    AG_MGR["Agent Manager<br/>(Router → Workers,<br/>Conversation State)"]
-    FALLBACK["Fallback / Human Escalation"]
-  end
+%% --- LAYER 3: Orchestration ---
+subgraph L3["Layer 3: Orchestration"]
+  direction LR
+  orch[Orchestrator Service<br/>Intent Prompt Routing Grounding]
+  agentmgr[Agent Manager]
+  fallback[Fallback<br/>Human Escalation]
+end
 
-  %% ========================
-  %% Agents Layer
-  %% ========================
-  subgraph Agents["Agent Layer"]
-    AG_CUST["Customer Design Agent<br/>(RAG + Recommender)"]
-    AG_MARK["Marketing Analytics Agent<br/>(Fabric read-only,<br/>Aggregates only)"]
-    AG_DEVOPS["DevOps Agent (Copilot)<br/>(IaC, Migrations)"]
-  end
+%% --- LAYER 4: Agents ---
+subgraph L4["Layer 4: Agents"]
+  direction LR
+  cda[Customer Design Agent]
+  maa[Marketing Analytics Agent]
+  doa[DevOps Agent<br/>Copilot Assistant]
+end
 
-  %% ========================
-  %% Model & Retrieval Layer
-  %% ========================
-  subgraph Models["Model & Retrieval Layer"]
-    FOUNDRY["Azure AI Foundry<br/>(Model Catalog & Governance)"]
-    OPENAI["Azure OpenAI<br/>(LLM Inference)"]
-    AI_SEARCH["Azure AI Search<br/>(Product Catalog / RAG)"]
-  end
+%% --- LAYER 5: Model & Retrieval ---
+subgraph L5["Layer 5: Model & Retrieval"]
+  direction LR
+  openai[Azure OpenAI<br/>LLM]
+  foundry[Azure AI Foundry<br/>Model Registry & Governance]
+  aisearch[Azure AI Search<br/>Product Catalog]
+end
 
-  %% ========================
-  %% Data Layer
-  %% ========================
-  subgraph Data["Data Layer"]
-    FABRIC["Microsoft Fabric Lakehouse<br/>(Read-only, Curated Views)"]
-    PROD_DB["Product DB / Catalog Index"]
-  end
+%% --- LAYER 6: Data ---
+subgraph L6["Layer 6: Data"]
+  direction LR
+  fabric[Microsoft Fabric Lakehouse<br/>Read-only Masked Aggregated]
+  pdb[Product DB<br/>Catalog Index]
+end
 
-  %% ========================
-  %% DevOps & Ops Layer
-  %% ========================
-  subgraph Ops["DevOps & Ops"]
-    GHE["GitHub Enterprise"]
-    COPILOT["GitHub Copilot Enterprise"]
-    ACTIONS["GitHub Actions<br/>(CI CD)"]
-    HOST["App Services / AKS / N-VMs"]
-    MONITOR["Azure Monitor / Log Analytics"]
-  end
+%% --- LAYER 7: DevOps & Ops ---
+subgraph L7["Layer 7: DevOps & Ops"]
+  direction LR
+  ghe[GitHub Enterprise]
+  gha[GitHub Actions]
+  copilot[GitHub Copilot]
+  host[AKS App Services VMs]
+  monitor[Azure Monitor<br/>Log Analytics]
+end
 
-  %% ========================
-  %% Connections
-  %% ========================
+%% --- FLOW: USERS → API & SECURITY
+cu --> apim
+ma --> apim
+dev --> ghe
 
-  %% Users to API
-  U1 -->|HTTPS chat| APIM
-  U2 -->|Internal portal| APIM
-  U3 -->|Dev tools Copilot| GHE
+%% --- FLOW: API & SECURITY LAYER ---
+apim --> entra
+entra --> policy
+policy --> orch
 
-  %% API & Security to Orchestration
-  APIM -->|validated request| POLICY
-  POLICY --> ORCH
-  ENTRA --> APIM
-  KV --> ORCH
+%% --- Orchestration Layer ---
+orch --> agentmgr
+agentmgr --> cda
+agentmgr --> maa
+agentmgr --> doa
+agentmgr --> fallback
 
-  %% Orchestration to Agent Manager and Agents
-  ORCH --> AG_MGR
-  AG_MGR --> AG_CUST
-  AG_MGR --> AG_MARK
-  AG_MGR --> AG_DEVOPS
-  AG_MGR --> FALLBACK
+fallback -.-> ma
 
-  %% Agents to Models & Retrieval
-  AG_CUST -->|RAG product lookup| AI_SEARCH
-  AG_CUST -->|LLM prompt| OPENAI
-  AG_MARK -->|aggregate queries| FABRIC
-  AG_MARK -->|summaries| OPENAI
-  AG_DEVOPS -->|assist suggestions| COPILOT
+%% --- Orchestrator to AI Foundry for model governance
+orch -- "Model registration evaluation" --> foundry
+foundry -- "Model registry governance" --> openai
 
-  %% Foundry in the loop for model governance
-  OPENAI --> FOUNDRY
-  FOUNDRY -.-> ORCH
-  FOUNDRY -.-> AG_MGR
+%% --- AGENTS LAYER CONNECTIVITY ---
+cda -- "LLM Reasoning" --> openai
+cda -- "Product Lookup RAG" --> aisearch
+maa -- "masked aggregated data only" --> fabric
+doa -- "Actions PRs" --> gha
+doa -- "DevOps Assist" --- ghe
+doa -- "Copilot Suggestions" --- copilot
 
-  %% Product catalog and DB
-  PROD_DB --> AI_SEARCH
-  PROD_DB --> HOST
+aisearch -- "Index Data Source" --> pdb
+fabric -- "No raw data Masked endpoints only" -.-> maa
 
-  %% DevOps flows
-  GHE --> COPILOT
-  GHE --> ACTIONS
-  ACTIONS -->|deploy| HOST
-  AG_DEVOPS --> ACTIONS
+%% --- MODEL & RETRIEVAL TO ORCHESTRATION where necessary ---
+cda -- "Prompt Assembly RAG" --> orch
+maa -- "Prompt Assembly" --> orch
 
-  %% Observability & Monitoring
-  ORCH --> MONITOR
-  POLICY --> MONITOR
-  AG_CUST --> MONITOR
-  FABRIC --> MONITOR
-  ACTIONS --> MONITOR
-  HOST --> MONITOR
+%% --- DEVOPS LAYER CONNECTIVITY
+ghe --> gha
+gha --> host
+host --> monitor
 
-  %% Audit trail
-  POLICY -->|audit masked logs| MONITOR
-  FABRIC -->|masked aggregated results| POLICY
+%% --- OBSERVABILITY LAYER (logs, metrics, audit) ---
+policy -- "logs metrics audit" --> monitor
+orch -- "logs metrics audit" --> monitor
+agentmgr -- "logs metrics audit" --> monitor
+cda -- "logs metrics audit" --> monitor
+maa -- "logs metrics audit" --> monitor
+doa -- "logs metrics audit" --> monitor
+fabric -- "logs metrics audit" --> monitor
+gha -- "logs metrics audit" --> monitor
+host -- "logs metrics audit" --> monitor
 
-  %% Human escalation path
-  FALLBACK -->|human review| U2
+%% --- STYLE FOR VISIBILITY ---
+classDef layer fill:#f8fafd,stroke:#aecef7,stroke-width:2px;
+classDef security fill:#f6eaf4,stroke:#ce5191,stroke-width:2px;
+classDef orch fill:#e9fbe4,stroke:#4cb14c,stroke-width:2px;
+classDef agent fill:#fffbe7,stroke:#f7a031,stroke-width:2px;
+classDef data fill:#edeffa,stroke:#666fd7,stroke-width:2px;
+classDef devops fill:#e8f9fd,stroke:#00b4d8,stroke-width:2px;
 
-  %% Styling note: keep nodes simple for widest Mermaid compatibility
+class L1,L2 layer
+class policy security
+class L3 orch
+class L4 agent
+class L5,L6 data
+class L7 devops
