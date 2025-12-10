@@ -1,0 +1,126 @@
+flowchart TB
+  %% ========================
+  %% Users Layer
+  %% ========================
+  subgraph Users["Users"]
+    U1["Customer<br/>(Web / Mobile)"]
+    U2["Marketing Staff<br/>(Internal Portal)"]
+    U3["Dev Team<br/>(VS Code / GitHub IDE)"]
+  end
+
+  %% ========================
+  %% API & Security Layer
+  %% ========================
+  subgraph API_Security["API & Security Layer"]
+    APIM["Azure API Management<br/>(Auth, Throttling, Schema)"]
+    ENTRA["Microsoft Entra ID<br/>(AuthN/AuthZ)"]
+    POLICY["Policy Engine<br/>(Data Masking,<br/>Discount Validation,<br/>Safety Rules)"]
+    KV["Azure Key Vault"]
+  end
+
+  %% ========================
+  %% Orchestration Layer
+  %% ========================
+  subgraph Orchestration["Orchestration Layer"]
+    ORCH["Orchestrator Service<br/>(Intent Classification,<br/>Prompt Composition,<br/>Routing)"]
+    AG_MGR["Agent Manager<br/>(Router → Workers,<br/>Conversation State)"]
+    FALLBACK["Fallback / Human Escalation"]
+  end
+
+  %% ========================
+  %% Agents Layer
+  %% ========================
+  subgraph Agents["Agent Layer"]
+    AG_CUST["Customer Design Agent<br/>(RAG + Recommender)"]
+    AG_MARK["Marketing Analytics Agent<br/>(Fabric read-only,<br/>Aggregates only)"]
+    AG_DEVOPS["DevOps Agent (Copilot)<br/>(IaC, Migrations)"]
+  end
+
+  %% ========================
+  %% Model & Retrieval Layer
+  %% ========================
+  subgraph Models["Model & Retrieval Layer"]
+    FOUNDRY["Azure AI Foundry<br/>(Model Catalog & Governance)"]
+    OPENAI["Azure OpenAI<br/>(LLM Inference)"]
+    AI_SEARCH["Azure AI Search<br/>(Product Catalog / RAG)"]
+  end
+
+  %% ========================
+  %% Data Layer
+  %% ========================
+  subgraph Data["Data Layer"]
+    FABRIC["Microsoft Fabric Lakehouse<br/>(Read-only, Curated Views)"]
+    PROD_DB["Product DB / Catalog Index"]
+  end
+
+  %% ========================
+  %% DevOps & Ops Layer
+  %% ========================
+  subgraph Ops["DevOps & Ops"]
+    GHE["GitHub Enterprise"]
+    COPILOT["GitHub Copilot Enterprise"]
+    ACTIONS["GitHub Actions<br/>(CI CD)"]
+    HOST["App Services / AKS / N-VMs"]
+    MONITOR["Azure Monitor / Log Analytics"]
+  end
+
+  %% ========================
+  %% Connections
+  %% ========================
+
+  %% Users to API
+  U1 -->|HTTPS chat| APIM
+  U2 -->|Internal portal| APIM
+  U3 -->|Dev tools Copilot| GHE
+
+  %% API & Security to Orchestration
+  APIM -->|validated request| POLICY
+  POLICY --> ORCH
+  ENTRA --> APIM
+  KV --> ORCH
+
+  %% Orchestration to Agent Manager and Agents
+  ORCH --> AG_MGR
+  AG_MGR --> AG_CUST
+  AG_MGR --> AG_MARK
+  AG_MGR --> AG_DEVOPS
+  AG_MGR --> FALLBACK
+
+  %% Agents to Models & Retrieval
+  AG_CUST -->|RAG product lookup| AI_SEARCH
+  AG_CUST -->|LLM prompt| OPENAI
+  AG_MARK -->|aggregate queries| FABRIC
+  AG_MARK -->|summaries| OPENAI
+  AG_DEVOPS -->|assist suggestions| COPILOT
+
+  %% Foundry in the loop for model governance
+  OPENAI --> FOUNDRY
+  FOUNDRY -.-> ORCH
+  FOUNDRY -.-> AG_MGR
+
+  %% Product catalog and DB
+  PROD_DB --> AI_SEARCH
+  PROD_DB --> HOST
+
+  %% DevOps flows
+  GHE --> COPILOT
+  GHE --> ACTIONS
+  ACTIONS -->|deploy| HOST
+  AG_DEVOPS --> ACTIONS
+
+  %% Observability & Monitoring
+  ORCH --> MONITOR
+  POLICY --> MONITOR
+  AG_CUST --> MONITOR
+  FABRIC --> MONITOR
+  ACTIONS --> MONITOR
+  HOST --> MONITOR
+
+  %% Audit trail
+  POLICY -->|audit masked logs| MONITOR
+  FABRIC -->|masked aggregated results| POLICY
+
+  %% Human escalation path
+  FALLBACK -->|human review| U2
+
+  %% Styling note: keep nodes simple for widest Mermaid compatibility
